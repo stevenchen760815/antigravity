@@ -559,7 +559,76 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
 5.  **提案**: 建議新增或修改哪個 Protocol
 6.  **行動**: 依決策執行
 
-### 21.5 退場條件 (Sunset Clause)
+### 21.6 Backlog 定義 (Backlog Location) 🆕
+P2/P3 缺陷必須記錄到明確的位置：
+*   **專案層級**: `{project_root}/BACKLOG.md`
+*   **全域層級**: `C:/antigravity/BACKLOG.md`
+*   **GitHub**: 當專案有 GitHub Repo 時，優先使用 GitHub Issues
+
+**Backlog 格式**：
+```markdown
+## [日期] [P等級] 問題標題
+- **發現於**: [對話 ID 或任務名稱]
+- **描述**: ...
+- **建議解法**: ...
+- **狀態**: [ ] Pending / [x] Resolved
+```
+
+### 21.7 預設行為 (Default Behavior) 🆕
+為避免過度打擾使用者，以下情況採用預設行為：
+| 情境 | 預設行為 | 理由 |
+| :--- | :--- | :--- |
+| P2 缺陷 | 直接記錄到 Backlog，不詢問 | 不影響當前任務 |
+| P3 缺陷 | 直接記錄到 Backlog，不詢問 | 錦上添花 |
+| 審查輸出 | 使用簡化模式 (見 21.8) | 減少訊息冗長 |
+
+**例外**：使用者明確要求詳細報告時，輸出完整版。
+
+### 21.8 對話結束報告 (Session End Report) 🆕
+每次對話結束時（notify_user 告知任務完成時），**必須** 輸出以下摘要：
+
+```markdown
+---
+## 📊 Session Report
+
+### 資源使用統計
+| 類型 | 數量 | 詳情 |
+| :--- | :---: | :--- |
+| **Agents** | X | Main Agent + Browser Subagent (Y 次) |
+| **Skills** | X | [列出使用的 Skills] |
+| **Tools** | X | [前 5 高頻工具] |
+
+### 透明度報告
+- **考慮但未使用的工具**: [列出] 或 無
+- **發現但延後的問題**: [列出] 或 無
+- **隱匿風險檢查**: ✅ 無隱匿問題 / ⚠️ 有未解決問題 [說明]
+
+### Playbook 合規
+- Layer 1 (合規): [X/5 項通過]
+- Layer 2 (系統缺陷): [X/6 項檢查]
+- 新發現 Gap: [數量] → [處理方式]
+---
+```
+
+### 21.9 透明度規則 (Transparency Rules) 🆕
+Agent **必須** 誠實報告以下內容：
+
+#### 21.9.1 禁止隱匿問題 (No Hidden Problems)
+*   所有發現的錯誤 **必須** 報告，即使是自己造成的
+*   若嘗試修復失敗，**必須** 告知使用者，不得假裝成功
+*   若工具返回錯誤，**必須** 在報告中提及
+
+#### 21.9.2 工具使用透明度 (Tool Usage Transparency)
+*   列出「想使用但無法使用」的工具 (例：想用 Skill Agent 但系統不支援)
+*   列出「考慮使用但決定不用」的工具及原因
+*   列出「使用後失敗」的工具及錯誤訊息
+
+#### 21.9.3 Skill 使用透明度 (Skill Usage Transparency)
+*   列出本次對話中「應該讀取但沒讀取」的 Skill
+*   列出「新建立」的 Skill
+*   列出「應該存在但不存在」的 Skill (→ 觸發 Protocol 18)
+
+### 21.10 退場條件 (Sunset Clause)
 當 Playbook 升級至 **V3.0** 或累計 10+ 次對話無新 Gap 發現時，Layer 2 可降級為「選擇性執行」。
 
 ---
