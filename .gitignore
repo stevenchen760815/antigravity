@@ -1,0 +1,16 @@
+# System Artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+
+# User Data & Projects
+wargames/
+專案/
+*.log
+*.zip
+
+# Temporary
+tmp/
+temp/
+shadow_*

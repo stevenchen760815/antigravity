@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ag-dev"
+version = "2.4.0"
+description = "Agentic Development System - Zero Gravity Protocol"
+authors = [
+  { name="Steven Chen", email="steven@example.com" },
+]
+readme = "GEMINI.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "colorama",
+    "pytest",
+]
+
+[project.scripts]
+antigravity = "ag_dev.cli.main:main"
+
+[tool.setuptools.package-data]
+ag_dev = ["resources/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

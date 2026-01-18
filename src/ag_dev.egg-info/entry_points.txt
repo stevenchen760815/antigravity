@@ -1,0 +1,2 @@
+[console_scripts]
+antigravity = ag_dev.cli.main:main
