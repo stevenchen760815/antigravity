@@ -1,27 +1,37 @@
-# Implementation Plan - Genesis Bootstrap
+# Implementation Plan - Phase 2 (AR & Deity Expansion)
 
-## 1. Goal Description
-Initialize the Antigravity Agentic Workspace V2 with the "Genesis Bootstrap" configuration (3 Agents + 4 Seed Skills).
-Establish the "Iron Triangle" of governance: Rules (`GEMINI.md`), State (`task.md`), and Plan (`implementation_plan.md`).
+## Goal Description
+Enhance the "Chen Zhen Fang ERP" with:
+1.  **Accounts Receivable (AR)**: Track unpaid orders, allow Boss to mark as paid (auto-generating Income tranasction), and view total debt.
+2.  **Deity Expansion**: Move hardcoded seed data to `data/deities.json` and add 10+ major Taiwanese deities.
 
-## 2. User Review Required
-> [!NOTE]
-> This is a genesis plan. No user review required for initialization.
+## Proposed Changes
 
-## 3. Proposed Changes
-### Core Infrastructure
-*   [NEW] `scripts/pre_commit_scan.py` (Protocol 14.1)
-*   [NEW] `scripts/ghost_buster.py` (Protocol 14.2)
-*   [NEW] `skills/skill_meta_skill_generator.md` (Protocol 15.2)
-*   [NEW] `skills/skill_project_structure.md` (Protocol 11)
-*   [NEW] `skills/skill_defensive_io.md` (Protocol 5.1)
-*   [NEW] `skills/skill_log_standard.md` (Protocol 2.1)
-*   [NEW] `task.md` (Protocol 4.1)
+### [Data]
+#### [NEW] [data/deities.json](file:///c:/antigravity/專案/chen-zhen-fang-bot/data/deities.json)
+- JSON file containing 10+ deities (Name, Lunar Birthday, Offerings, Description).
 
-## 4. Verification Plan
-### Automated Tests
-*   `python scripts/pre_commit_scan.py` must pass (Exit 0).
-*   `python scripts/ghost_buster.py` must report clean.
+### [Services]
+#### [MODIFY] [services/erp_service.py](file:///c:/antigravity/專案/chen-zhen-fang-bot/services/erp_service.py)
+- `get_unpaid_orders(user_id=None)`: List pending orders.
+- `mark_order_paid(order_id)`:
+    1. Update Order status to 'paid'.
+    2. Create `Transaction` (Income) automatically.
+    3. Return success status.
+- `get_ar_summary()`: Total unpaid amount across all users.
 
-## 5. Tech Debt / Known Issues
-None.
+#### [MODIFY] [init_db.py](file:///c:/antigravity/專案/chen-zhen-fang-bot/init_db.py)
+- Remove hardcoded seeding.
+- Add `load_deities_from_json()` logic.
+
+### [Bot]
+#### [MODIFY] [app.py](file:///c:/antigravity/專案/chen-zhen-fang-bot/app.py)
+- **Admin Commands**:
+    - `!欠款`: Show total AR and list of Debtors.
+    - `!入帳 [Order_ID]`: Mark an order as paid.
+- **Customer Commands**:
+    - `我的帳單`: Show my unpaid orders.
+
+## Verification Plan
+- **Test AR**: Create Order -> Check AR (should increase) -> Mark Paid -> Check AR (decrease) & Check Transaction (Income created).
+- **Test JSON Load**: Run `init_db.py` and query `Deity.query.count()`.
