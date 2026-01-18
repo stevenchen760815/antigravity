@@ -458,9 +458,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
 > **新增於**: 2026-01-18 (V2.5)
 > **觸發原因**: Playbook 早期上線，需要持續優化
 
-### 21.1 每次回應後自我審查 (Post-Response Audit)
-在每次任務完成後 (notify_user 之前)，Agent **必須** 執行以下心智檢核：
+### 21.1 雙層審查架構 (Two-Layer Audit)
+每次任務完成後，Agent **必須** 執行兩層審查：
 
+#### Layer 1: 合規檢查 (Compliance Check)
 ```markdown
 ## 🔍 Playbook Compliance Check
 - [ ] 是否有遺漏的 Skill 需要建立？ (Protocol 18)
@@ -468,23 +469,44 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
 - [ ] 是否使用了相對路徑的 SQLite？ (Protocol 22)
 - [ ] 是否有 Browser Subagent 使用不當？ (Protocol 17)
 - [ ] 是否有領域知識需要靜態化？ (Protocol 20)
-- [ ] 是否發現 Playbook 未涵蓋的新情境？
 ```
 
-### 21.2 缺陷發現流程 (Gap Discovery Flow)
+#### Layer 2: 系統性缺陷檢討 (Systemic Defect Review) 🆕
+```markdown
+## 🛠️ Systemic Defect Review
+- [ ] **Root Cause**: 這次出錯的根本原因是什麼？是人的操作問題還是系統設計問題？
+- [ ] **Protocol Gap**: 現有 Protocol 是否有邏輯漏洞或矛盾？
+- [ ] **Architecture Flaw**: 架構設計是否有根本性缺陷需要重構？
+- [ ] **Tool Limitation**: 是否發現工具能力不足，需要新工具或升級？
+- [ ] **Knowledge Gap**: 是否有領域知識缺失，導致錯誤決策？
+- [ ] **User Experience**: 流程是否對使用者造成困擾？
+```
+
+### 21.2 缺陷分類與處理 (Defect Classification)
+| 類型 | 描述 | 處理方式 |
+| :--- | :--- | :--- |
+| **P0 Critical** | 系統架構缺陷，導致無法完成任務 | 立即停止，建立 Issue，修正後才能繼續 |
+| **P1 High** | Protocol 設計不合理，導致效率低下 | 記錄 `[PLAYBOOK_GAP]`，對話結束前修正 |
+| **P2 Medium** | 工具使用不當或知識缺失 | 記錄並在下次對話改進 |
+| **P3 Low** | 小優化建議 | 記錄到 Backlog |
+
+### 21.3 反思問題清單 (Retrospective Questions)
+在每次對話結束前，自問：
+1.  **Why**: 這次任務為什麼成功/失敗？
+2.  **What**: 學到了什麼新模式或反模式？
+3.  **How**: 如何防止同樣的問題再次發生？
+4.  **Rule**: 是否需要新增或修改 Protocol？
+
+### 21.4 Gap Discovery Flow (缺陷發現流程)
 當發現 Playbook 未涵蓋的情境時：
 1.  **記錄**: 在 `thought` 中標記 `[PLAYBOOK_GAP]`
-2.  **報告**: 在 `notify_user` 訊息中加入 `### 🔴 Playbook Gap Alert` 區塊
-3.  **提案**: 建議新增或修改哪個 Protocol
+2.  **分類**: 判斷 P0-P3 等級
+3.  **報告**: 在 `notify_user` 訊息中加入 `### 🔴 Playbook Gap Alert` 區塊
+4.  **提案**: 建議新增或修改哪個 Protocol
+5.  **行動**: P0/P1 立即修正；P2/P3 記錄
 
-### 21.3 階段性審查 (Session-End Retro)
-在對話結束前或達到 20 Turns 時，自動執行：
-1.  回顧本次對話是否有違反 Playbook 的行為
-2.  列出所有 `[PLAYBOOK_GAP]` 標記
-3.  提案 Playbook 更新 (若有)
-
-### 21.4 退場條件 (Sunset Clause)
-當 Playbook 升級至 **V3.0** 或累計 10+ 次對話無新 Gap 發現時，此 Protocol 可降級為「選擇性執行」。
+### 21.5 退場條件 (Sunset Clause)
+當 Playbook 升級至 **V3.0** 或累計 10+ 次對話無新 Gap 發現時，Layer 2 可降級為「選擇性執行」。
 
 ---
 
