@@ -472,14 +472,28 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
 ```
 
 #### Layer 2: 系統性缺陷檢討 (Systemic Defect Review) 🆕
-```markdown
-## 🛠️ Systemic Defect Review
-- [ ] **Root Cause**: 這次出錯的根本原因是什麼？是人的操作問題還是系統設計問題？
-- [ ] **Protocol Gap**: 現有 Protocol 是否有邏輯漏洞或矛盾？
-- [ ] **Architecture Flaw**: 架構設計是否有根本性缺陷需要重構？
-- [ ] **Tool Limitation**: 是否發現工具能力不足，需要新工具或升級？
-- [ ] **Knowledge Gap**: 是否有領域知識缺失，導致錯誤決策？
-- [ ] **User Experience**: 流程是否對使用者造成困擾？
+**每項必須回答三個問題：發現 → 分析 → 解決**
+
+| 檢查項目 | 如何偵測？ | 如何分析？ | 如何解決？ |
+| :--- | :--- | :--- | :--- |
+| **Root Cause** | 任務失敗或效率異常低 | 使用「5 Whys」追溯根本原因 | 若是人為錯誤 → 加入 Checklist；若是系統缺陷 → 修改 Protocol |
+| **Protocol Gap** | 發現 Playbook 沒有涵蓋的情境 | 比對現有 Protocol 清單 | 起草新 Protocol 並加入 Playbook |
+| **Architecture Flaw** | 需要繞過設計才能完成任務 | 繪製流程圖找出瓶頸 | 重構受影響的模組；更新 `implementation_plan.md` |
+| **Tool Limitation** | 工具無法完成預期操作 | 嘗試替代方案；搜尋文件 | 1) 簡化需求 2) 提 Feature Request 3) 開發新 Skill |
+| **Knowledge Gap** | 做出錯誤決策或遺漏重要資訊 | 回顧哪些知識應該事先知道 | 建立 Knowledge Item 或更新 Skill 文件 |
+| **User Experience** | 使用者抱怨或需要多次確認 | 統計使用者干預次數 | 簡化流程；增加自動化；改善提示訊息 |
+
+**範例**：
+```
+問題: Bot 無回應
+偵測: Webhook 測試成功但訊息無回覆
+分析 (5 Whys):
+  1. 為什麼無回覆? → Server 收到請求但報錯
+  2. 為什麼報錯? → Database connection failed
+  3. 為什麼連線失敗? → 相對路徑在不同 CWD 下失效
+  4. 為什麼用相對路徑? → 沒有 Protocol 規範
+  5. 根本原因: Playbook 缺少 SQLite 路徑規範
+解決: 新增 Protocol 22 (SQLite 絕對路徑規則)
 ```
 
 ### 21.2 缺陷分類與處理 (Defect Classification)
